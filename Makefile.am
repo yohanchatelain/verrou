@@ -37,7 +37,8 @@ VERROU_SOURCES_COMMON = \
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
-	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx
+	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx\
+	interflop_backends/backend_vprec/interflop_vprec.c
 
 
 
@@ -48,11 +49,11 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C =
+VERROU_FLAG_C = -g
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
-VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11
+VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11 -g
 
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN

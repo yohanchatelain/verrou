@@ -29,6 +29,16 @@ static VG_REGPARM(3) Int vr_checkdenormcast64FTo32F (Long a) {
   Int *d = (Int*)(&res);
   return *d;
 }
+// generation of operation cast backend vprec
+
+
+static VG_REGPARM(3) Int vr_vpreccast64FTo32F (Long a) {
+  double *arg1 = (double*)(&a);
+  float res;
+  interflop_vprec_cast_double_to_float(*arg1, &res,backend_vprec_context);
+  Int *d = (Int*)(&res);
+  return *d;
+}
 // generation of operation cast backend verrou
 
 
@@ -808,6 +818,262 @@ static VG_REGPARM(3) void vr_checkdenormdiv32Fx4 (/*OUT*/V128* output, ULong aHi
 }
 
 
+// generation of operation add backend vprec
+
+
+static VG_REGPARM(2) Long vr_vprecadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_vprec_add_double(*arg1, *arg2, &res, backend_vprec_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_vprec_add_double(arg1[0], arg2[0], res, backend_vprec_context);
+  interflop_vprec_add_double(arg1[1], arg2[1], res+1, backend_vprec_context);
+}
+
+static VG_REGPARM(3) void vr_vprecadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_vprec_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_vprecadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_vprec_add_float(*arg1, *arg2, &res, backend_vprec_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_vprec_add_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_vprecadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_vprec_add_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+
+// generation of operation sub backend vprec
+
+
+static VG_REGPARM(2) Long vr_vprecsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_vprec_sub_double(*arg1, *arg2, &res, backend_vprec_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_vprec_sub_double(arg1[0], arg2[0], res, backend_vprec_context);
+  interflop_vprec_sub_double(arg1[1], arg2[1], res+1, backend_vprec_context);
+}
+
+static VG_REGPARM(3) void vr_vprecsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_vprec_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_vprecsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_vprec_sub_float(*arg1, *arg2, &res, backend_vprec_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_vprec_sub_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_vprecsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_vprec_sub_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+
+// generation of operation mul backend vprec
+
+
+static VG_REGPARM(2) Long vr_vprecmul64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_vprec_mul_double(*arg1, *arg2, &res, backend_vprec_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecmul64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_vprec_mul_double(arg1[0], arg2[0], res, backend_vprec_context);
+  interflop_vprec_mul_double(arg1[1], arg2[1], res+1, backend_vprec_context);
+}
+
+static VG_REGPARM(3) void vr_vprecmul64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_vprec_mul_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_vprecmul32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_vprec_mul_float(*arg1, *arg2, &res, backend_vprec_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecmul32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_vprec_mul_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_vprecmul32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_vprec_mul_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+
+// generation of operation div backend vprec
+
+
+static VG_REGPARM(2) Long vr_vprecdiv64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_vprec_div_double(*arg1, *arg2, &res, backend_vprec_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecdiv64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_vprec_div_double(arg1[0], arg2[0], res, backend_vprec_context);
+  interflop_vprec_div_double(arg1[1], arg2[1], res+1, backend_vprec_context);
+}
+
+static VG_REGPARM(3) void vr_vprecdiv64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_vprec_div_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_vprecdiv32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_vprec_div_float(*arg1, *arg2, &res, backend_vprec_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vprecdiv32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_vprec_div_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_vprecdiv32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_vprec_div_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+  }
+}
+
+
 // generation of operation add backend verrou
 
 
@@ -1518,6 +1784,148 @@ static VG_REGPARM(3) void vr_checkdenormcheckcancellationsub32Fx4 (/*OUT*/V128* 
 }
 
 
+// generation of operation add backend vprec
+
+
+static VG_REGPARM(2) Long vr_vpreccheckcancellationadd64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_vprec_add_double(*arg1, *arg2, &res, backend_vprec_context);
+  interflop_checkcancellation_add_double(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationadd64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_vprec_add_double(arg1[0], arg2[0], res, backend_vprec_context);
+  interflop_checkcancellation_add_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
+  interflop_vprec_add_double(arg1[1], arg2[1], res+1, backend_vprec_context);
+  interflop_checkcancellation_add_double(arg1[1], arg2[1], res+1, backend_checkcancellation_context);
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationadd64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_vprec_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_vprec_context);
+     interflop_checkcancellation_add_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_vpreccheckcancellationadd32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_vprec_add_float(*arg1, *arg2, &res, backend_vprec_context);
+  interflop_checkcancellation_add_float(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationadd32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_vprec_add_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+     interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationadd32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_vprec_add_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+     interflop_checkcancellation_add_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+
+// generation of operation sub backend vprec
+
+
+static VG_REGPARM(2) Long vr_vpreccheckcancellationsub64F (Long a, Long b) {
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double res;
+  interflop_vprec_sub_double(*arg1, *arg2, &res, backend_vprec_context);
+  interflop_checkcancellation_sub_double(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Long *c = (Long*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationsub64Fx2(/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  double arg1[2] = {*((double*)(&aLo)),*((double*)(&aHi))} ;
+  double arg2[2] = {*((double*)(&bLo)),*((double*)(&bHi))} ;
+  double* res=(double*) output;
+  interflop_vprec_sub_double(arg1[0], arg2[0], res, backend_vprec_context);
+  interflop_checkcancellation_sub_double(arg1[0], arg2[0], res, backend_checkcancellation_context);
+  interflop_vprec_sub_double(arg1[1], arg2[1], res+1, backend_vprec_context);
+  interflop_checkcancellation_sub_double(arg1[1], arg2[1], res+1, backend_checkcancellation_context);
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationsub64Fx4 (/*OUT*/V256* output,
+                                           ULong b0, ULong b1, ULong b2,ULong b3) {
+
+  double arg2[4] = {*((double*)(&b0)),*((double*)(&b1)), *((double*)(&b2)),*((double*)(&b3))} ;
+  double* res=(double*) output;
+  for(int i=0; i<4; i++){
+     interflop_vprec_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_vprec_context);
+     interflop_checkcancellation_sub_double(arg1CopyAvxDouble[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(2) Int vr_vpreccheckcancellationsub32F (Long a, Long b) {
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float res;
+  interflop_vprec_sub_float(*arg1, *arg2, &res, backend_vprec_context);
+  interflop_checkcancellation_sub_float(*arg1, *arg2, &res, backend_checkcancellation_context);
+  Int *c = (Int*)(&res);
+  return *c;
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationsub32Fx8 (/*OUT*/V256* output,
+					   ULong b0, ULong b1, ULong b2,ULong b3) {
+  V256 reg2;   reg2.w64[0]=b0;   reg2.w64[1]=b1;   reg2.w64[2]=b2;   reg2.w64[3]=b3;
+  float* res=(float*) output;
+  float* arg1=arg1CopyAvxFloat;
+  float* arg2=(float*) &reg2;
+  for(int i=0; i<8; i++){
+     interflop_vprec_sub_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+     interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+static VG_REGPARM(3) void vr_vpreccheckcancellationsub32Fx4 (/*OUT*/V128* output, ULong aHi, ULong aLo, ULong bHi,ULong bLo) {
+  V128 reg1; reg1.w64[0]=aLo; reg1.w64[1]=aHi;
+  V128 reg2; reg2.w64[0]=bLo; reg2.w64[1]=bHi;
+
+  float* res=(float*) output;
+  float* arg1=(float*) &reg1;
+  float* arg2=(float*) &reg2;
+
+  for(int i=0; i<4;i++){
+     interflop_vprec_sub_float(arg1[i], arg2[i], res+i, backend_vprec_context);
+     interflop_checkcancellation_sub_float(arg1[i], arg2[i], res+i, backend_checkcancellation_context);
+  }
+}
+
+
 // generation of operation madd backend verrou
 //FMA Operator
 static VG_REGPARM(3) Long vr_verroumadd64F (Long a, Long b, Long c) {
@@ -1697,6 +2105,68 @@ static VG_REGPARM(3) Int vr_checkdenormmsub32F (Long a, Long b, Long c) {
   float *arg3 = (float*)(&c);
   float res;
   interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation madd backend vprec
+//FMA Operator
+static VG_REGPARM(3) Long vr_vprecmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_vprec_madd_double(*arg1, *arg2,  *arg3, &res, backend_vprec_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_vprecmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_vprec_madd_float(*arg1, *arg2,  *arg3, &res, backend_vprec_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend vprec
+//FMA Operator
+static VG_REGPARM(3) Long vr_vprecmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_vprec_madd_double(*arg1, *arg2, - *arg3, &res, backend_vprec_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_vprecmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_vprec_madd_float(*arg1, *arg2, - *arg3, &res, backend_vprec_context);
 #else
   float res=0.;
   VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
@@ -1894,6 +2364,72 @@ static VG_REGPARM(3) Int vr_checkdenormcheckcancellationmsub32F (Long a, Long b,
   float *arg3 = (float*)(&c);
   float res;
   interflop_checkdenorm_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkdenorm_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation madd backend vprec
+//FMA Operator
+static VG_REGPARM(3) Long vr_vpreccheckcancellationmadd64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_vprec_madd_double(*arg1, *arg2,  *arg3, &res, backend_vprec_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_vpreccheckcancellationmadd32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_vprec_madd_float(*arg1, *arg2,  *arg3, &res, backend_vprec_context);
+  interflop_checkcancellation_madd_float(*arg1, *arg2,  *arg3, &res, backend_checkcancellation_context);
+#else
+  float res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Int *d = (Int*)(&res);
+  return *d;
+}
+// generation of operation msub backend vprec
+//FMA Operator
+static VG_REGPARM(3) Long vr_vpreccheckcancellationmsub64F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  double *arg1 = (double*)(&a);
+  double *arg2 = (double*)(&b);
+  double *arg3 = (double*)(&c);
+  double res;
+  interflop_vprec_madd_double(*arg1, *arg2, - *arg3, &res, backend_vprec_context);
+  interflop_checkcancellation_madd_double(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
+#else
+  double res=0.;
+  VG_(tool_panic) ( "Verrou needs to be compiled with FMA support \n");
+#endif
+  Long *d = (Long*)(&res);
+  return *d;
+}
+
+static VG_REGPARM(3) Int vr_vpreccheckcancellationmsub32F (Long a, Long b, Long c) {
+#ifdef USE_VERROU_FMA
+  float *arg1 = (float*)(&a);
+  float *arg2 = (float*)(&b);
+  float *arg3 = (float*)(&c);
+  float res;
+  interflop_vprec_madd_float(*arg1, *arg2, - *arg3, &res, backend_vprec_context);
   interflop_checkcancellation_madd_float(*arg1, *arg2, - *arg3, &res, backend_checkcancellation_context);
 #else
   float res=0.;

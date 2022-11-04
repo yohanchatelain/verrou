@@ -28,113 +28,120 @@ import sys
 import re
 
 
+def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post=""):
 
-def generateNargs(fileOut, fileNameTemplate, listOfBackend, listOfOp, nargs, post="", roundingTab=[None]):
+    templateStr = open(fileNameTemplate, "r", encoding='utf-8').readlines()
 
-    templateStr=open(fileNameTemplate, "r").readlines()
-
-    FctNameRegExp=re.compile("(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
-    BckNameRegExp=re.compile("(.*)BACKENDFUNC\(([^)]*)\)(.*)")
-
+    FctNameRegExp = re.compile(r"(.*)FCTNAME\(([^,]*),([^)]*)\)(.*)")
+    BckNameRegExp = re.compile(r"(.*)BACKENDFUNC\(([^)]*)\)(.*)")
 
     for backend in listOfBackend:
-        for op in listOfOp:
-            for rounding in roundingTab:
-                if nargs in [1,2]:
-                    applyTemplate(fileOut, templateStr, FctNameRegExp, BckNameRegExp, backend,op, post, sign=None, rounding=rounding)
-                if nargs==3:
-                    sign=""
-                    if "msub" in op:
-                        sign="-"
-                    applyTemplate(fileOut, templateStr,FctNameRegExp,BckNameRegExp, backend, op, post, sign, rounding=rounding)
+        for op in listOfOp.items():
+            (op_vg, _) = op
+            if nargs in [1, 2]:
+                applyTemplate(fileOut, templateStr, FctNameRegExp,
+                              BckNameRegExp, backend, op, post)
+            if nargs == 3:
+                sign = "-" if "msub" in op_vg else ""
+                applyTemplate(fileOut, templateStr, FctNameRegExp,
+                              BckNameRegExp, backend, op, post, sign)
 
 
+def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op, post, sign=None):
+    (op_vg, op_backend) = op
+    fileOut.write(f"// generation of operation {op_vg} backend {backend}\n")
 
-def applyTemplate(fileOut, templateStr, FctRegExp, BckRegExp, backend, op, post, sign=None, rounding=None):
-    fileOut.write("// generation of operation %s backend %s\n"%(op,backend))
-    backendFunc=backend
-    if rounding!=None:
-        backendFunc=backend+"_"+rounding
+    def fctName(typeVal, opt):
+        fields = ["vr_", backend, post, op_vg, typeVal, opt]
+        return "".join(fields)
 
-    def fctName(typeVal,opt):
-        return "vr_"+backendFunc+post+op+typeVal+opt
     def bckName(typeVal):
-        if sign!="-":
-            if rounding!=None:
-                return "interflop_"+backend+"_"+op+"_"+typeVal+"_"+rounding
-            return "interflop_"+backend+"_"+op+"_"+typeVal
-        else:
-            if rounding!=None:
-                return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal+"_"+rounding
-            return "interflop_"+backend+"_"+op.replace("sub","add")+"_"+typeVal
+        fields = ["interflop", backend, op_backend, typeVal]
+        return "_".join(fields)
 
     def bckNamePost(typeVal):
-        if sign!="-":
-            return "interflop_"+post+"_"+op+"_"+typeVal
-        else:
-            return "interflop_"+post+"_"+op.replace("sub","add")+"_"+typeVal
+        fields = ["interflop", post, op_backend, typeVal]
+        return "_".join(fields)
 
-
-    contextName="backend_"+backend+"_context"
-    contextNamePost="backend_"+post+"_context"
+    contextName = "_".join(["backend", backend, "context"])
+    contextNamePost = "_".join(["backend", post, "context"])
 
     for line in templateStr:
+        if "BACKENDGUARD" in line:
+            line = line.replace("BACKENDGUARD", backend.upper())
+
         if "CONTEXT" in line:
-            line=line.replace("CONTEXT", contextName)
+            line = line.replace("CONTEXT", contextName)
+
         if "SIGN" in line:
-            if sign!=None:
-                line=line.replace("SIGN", sign)
+            if sign is not None:
+                line = line.replace("SIGN", sign)
             else:
                 print("Generation failed")
                 sys.exit()
-        result=FctRegExp.match(line)
-        if result!=None:
-            res=result.group(1) + fctName(result.group(2), result.group(3)) + result.group(4)
-            fileOut.write(res+"\n")
+
+        result = FctRegExp.match(line)
+
+        if result is not None:
+            res = result.group(1) + fctName(result.group(2),
+                                            result.group(3)) + result.group(4)
+            fileOut.write(res + "\n")
             continue
-        result=BckRegExp.match(line)
-        if result!=None:
-            res=result.group(1) + bckName(result.group(2)) + result.group(3)
-            fileOut.write(res+"\n")
-            if post!="":
-                res=result.group(1) + bckNamePost(result.group(2)) + result.group(3)
-                res=res.replace(contextName, contextNamePost)
-                fileOut.write(res+"\n")
+
+        result = BckRegExp.match(line)
+
+        if result is not None:
+            res = result.group(1) + bckName(result.group(2)) + result.group(3)
+            fileOut.write(res + "\n")
+            if post != "":
+                res = result.group(
+                    1) + bckNamePost(result.group(2)) + result.group(3)
+                res = res.replace(contextName, contextNamePost)
+                fileOut.write(res + "\n")
             continue
 
         fileOut.write(line)
 
 
+def main():
+    fileNameOutput = "vr_generated_from_templates.h"
+    with open(fileNameOutput, "w", encoding='utf-8') as fileOut:
+        fileOut.write("// Generated by %s\n" % (str(sys.argv)[1:-1]))
+
+        backends = ["verrou", "mcaquad", "checkdenormal",
+                    "vprec", "cancellation", "bitmask", "mcaint"]
+
+        backends_with_checkfloatmax = ["verrou"]
+        backends_with_checkcancellation = backends
+
+        checkfloatmax = "checkfloatmax"
+        checkcancellation = "checkcancellation"
+
+        template1Args = "vr_interp_operator_template_cast.h"
+        listOfOp1Args = {"cast": "cast"}
+        generateNargs(fileOut, template1Args, backends, listOfOp1Args, 1)
+        generateNargs(fileOut, template1Args, backends_with_checkfloatmax,
+                      listOfOp1Args, 1, post=checkfloatmax)
+
+        template2Args = "vr_interp_operator_template_2args.h"
+        listOfOp2Args = {"add": "add", "sub": "sub",
+                         "mul": "mul", "div": "div"}
+        generateNargs(fileOut, template2Args, backends, listOfOp2Args, 2)
+        generateNargs(fileOut, template2Args, backends_with_checkfloatmax,
+                      listOfOp2Args, 2, post=checkfloatmax)
+
+        listOfOp2Args = {"add": "add", "sub": "sub"}
+        generateNargs(fileOut, template2Args, backends,
+                      listOfOp2Args, 2, post=checkcancellation)
+
+        template3Args = "vr_interp_operator_template_3args.h"
+        listOfOp3Args = {"madd": "fma", "msub": "fma"}
+        generateNargs(fileOut, template3Args, backends, listOfOp3Args, 3)
+        generateNargs(fileOut, template3Args, backends_with_checkcancellation,
+                      listOfOp3Args, 3, post=checkcancellation)
+        generateNargs(fileOut, template3Args, backends_with_checkfloatmax,
+                      listOfOp3Args, 3, post=checkfloatmax)
 
 
-
-if __name__=="__main__":
-    fileNameOutput="vr_generated_from_templates.h"
-    fileOut=open(fileNameOutput,"w")
-    fileOut.write("//Generated by %s\n"%(str(sys.argv)[1:-1]))
-
-    roundingTab=["NEAREST", "UPWARD", "DOWNWARD", "FARTHEST", "ZERO"]+[rnd + det for rnd in ["RANDOM", "AVERAGE", "PRANDOM"] for det in ["","_DET","_COMDET" ]]
-
-    template1Args="vr_interp_operator_template_cast.h"
-    listOfOp1Args=["cast"]
-    generateNargs(fileOut,template1Args, ["verrou","mcaquad","checkdenorm"], listOfOp1Args, 1)
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, post="check_float_max")
-    generateNargs(fileOut,template1Args, ["verrou"], listOfOp1Args, 1, roundingTab=roundingTab)
-
-    template2Args="vr_interp_operator_template_2args.h"
-    listOfOp2Args=["add","sub","mul","div"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2)
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, post="check_float_max")
-    generateNargs(fileOut,template2Args, ["verrou"], listOfOp2Args, 2, roundingTab=roundingTab)
-
-    listOfOp2Args=["add","sub"]
-    generateNargs(fileOut,template2Args, ["verrou","mcaquad","checkdenorm"], listOfOp2Args, 2, post="checkcancellation")
-
-    template3Args="vr_interp_operator_template_3args.h"
-    listOfOp3Args=["madd","msub"]
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3)
-
-    generateNargs(fileOut,template3Args, ["verrou","mcaquad","checkdenorm"], listOfOp3Args, 3, post="checkcancellation")
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, post="check_float_max")
-    generateNargs(fileOut,template3Args, ["verrou"], listOfOp3Args, 3, roundingTab=roundingTab)
-    fileOut.close()
+if __name__ == "__main__":
+    main()

@@ -1,49 +1,76 @@
 SHELL = /bin/bash
 
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(abspath $(dir $(mkfile_path)))
+
+valgrind_path := $(abspath $(current_dir)/../valgrind+verrou)
+verrou_path := $(abspath $(valgrind_path)/verrou)
+install_path := $(abspath $(verrou_path)/install)
+
+cd_verrou= cd $(verrou_path)
+cd_valgrind= cd $(valgrind_path)
+
+source_verrou= source $(install_path)/env.sh
+source_interflop= source $(install_path)/interflop-env.sh
+
+debug-variables:
+	@echo "*** DEBUG VARIABLES ***"
+	@echo "mkfile_path := ${mkfile_path}"
+	@echo "current_dir := ${current_dir}"
+	@echo "valgrind_path := ${valgrind_path}"
+	@echo "verrou_path := ${verrou_path}"
+	@echo "install_path := ${install_path}"
+
 download-valgrind:
-	cd .. && git clone --branch=$(VALGRIND_VERSION) --single-branch git://sourceware.org/git/valgrind.git valgrind+verrou >/dev/null
+	cd .. && git clone --branch=$(VALGRIND_VERSION) --single-branch git://sourceware.org/git/valgrind.git $(valgrind_path) >/dev/null
 
 patch-valgrind:
-	cd ../valgrind+verrou && cp -a $(PWD) verrou
-	cd ../valgrind+verrou && patch -p1 <verrou/valgrind.diff
+	$(cd_valgrind) && cp -a $(PWD) $(verrou_path)
+	$(cd_valgrind) && patch -p1 <$(verrou_path)/valgrind.diff
+
 patch-error:
-	cd ../valgrind+verrou && find . -name '*.rej' | xargs tail -n+1
+	$(cd_valgrind) && find . -name '*.rej' | xargs tail -n+1
 	# try to build verrou anyway if we check the development version of Valgrind
 	test "$(VALGRIND_VERSION)" = "master"
 
 configure:
+	@echo "*** INTERFLOP-STDLIB ***"
+	./install-interflop.sh $(install_path)
+
 	@echo "*** AUTOGEN ***"
-	cd ../valgrind+verrou && ./autogen.sh
+	$(cd_valgrind) && $(source_interflop) && ./autogen.sh
 
 	@echo "*** CONFIGURE ***"
-	cd ../valgrind+verrou && ./configure --enable-only64bit --enable-verrou-fma=yes --prefix=$${PWD}/install
+	$(cd_valgrind) && \
+	$(source_interflop) && \
+	./configure --enable-only64bit --enable-intrinsic-fma --prefix=$(install_path)
 
 build:
 	@echo "*** MAKE ***"
-	cd ../valgrind+verrou && make
+	$(cd_valgrind) && make
 
 	@echo "*** MAKE INSTALL ***"
-	cd ../valgrind+verrou && make install
+	$(cd_valgrind) && make install
 
 check-install:
 	@echo "*** CHECK VERSION ***"
-	source ../valgrind+verrou/install/env.sh && valgrind --version
+	$(source_verrou) && valgrind --version
 
 	@echo "*** CHECK HELP ***"
-	source ../valgrind+verrou/install/env.sh && valgrind --tool=verrou --help
+	$(source_verrou) && valgrind --tool=verrou --help
 
 check:
 	@echo "*** BUILD TESTS ***"
-	cd ../valgrind+verrou && make -C tests  check
-	cd ../valgrind+verrou && make -C verrou check
+	$(cd_valgrind) && make -C tests  check
+	$(cd_valgrind) && make -C verrou check
 
 	@echo "*** VALGRIND TESTS ***"
-	cd ../valgrind+verrou && perl tests/vg_regtest verrou
+	$(cd_valgrind) && perl tests/vg_regtest verrou
 
 check-error:
-	cd ../valgrind+verrou/verrou/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
+	$(cd_verrou)/tests && tail -n+1 *.stdout.diff *.stdout.out *.stderr.diff *.stderr.out
 	@false
 
 unit-test:
 	@echo "*** UNIT TESTS ***"
-	cd ../valgrind+verrou/verrou/unitTest && make
+	$(cd_verrou)/unitTest && VFC_BACKENDS_LOGGER=False make

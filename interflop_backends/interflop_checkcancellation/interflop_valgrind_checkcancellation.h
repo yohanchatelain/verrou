@@ -1,0 +1,9 @@
+#ifndef __INTERFLOP_VALGRIND_CHECKCANCELLATION_H__
+#define __INTERFLOP_VALGRIND_CHECKCANCELLATION_H__
+
+extern struct interflop_backend_interface_t backend_checkcancellation;
+extern void *backend_checkcancellation_context;
+
+void interflop_valgrind_checkcancellation_init(void);
+
+#endif /* __INTERFLOP_VALGRIND_CHECKCANCELLATION_H__ */

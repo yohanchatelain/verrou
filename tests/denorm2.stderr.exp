@@ -2,11 +2,9 @@ Verrou, Check floating-point rounding errors
 Copyright (C) XXXXX 
 
 First seed : XXX
-Backend verrou : test-version
-Backend mcaquad : test-version
-Backend checkcancellation : test-version
-Backend check_float_max : test-version
-Backend checkdenorm : test-version
+Info [interflop-checkdenormal]: load backend with:
+Info [interflop-checkdenormal]: flush-to-zero = true
+Backend interflop-checkdenormal : 1.x-dev
 Instrumented operations :
 	add : yes
 	sub : yes

@@ -1,36 +1,37 @@
 #! /bin/sh
 
-dir=`dirname $0`
+dir=$(dirname $0)
 
 cmd="$dir/../../tests/filter_stderr_basic"
 cmd="${cmd} |perl -pne 's/For lists of detected and suppressed errors, rerun with: -s\n//'"
 while [ ! -z "$1" ]; do
     case "$1" in
-        "-seed")
-            cmd="${cmd} | perl -pne 's/^(First seed : )\d+/\$1XXX/;'"
-            ;;
-        "-cnt-cmp-conv")
-            cmd="${cmd} | perl -n"
-            cmd="${cmd} -e 'BEGIN{\$remove=0}'"
-            cmd="${cmd} -e '\$remove=1 if m/^ cmp/;'"
-            cmd="${cmd} -e '\$remove=1 if m/^ conv/;'"
-            cmd="${cmd} -e 'print unless \$remove;'"
-            cmd="${cmd} -e '\$remove=0 if m/^ -----/;'"
-            ;;
-	"-backend-version")
-            cmd="${cmd} | perl -pne 's/^(Backend verrou : )[^\s]*/\$1test-version/;'"
-	    cmd="${cmd} | perl -pne 's/^(Backend mcaquad : )[^\s]*/\$1test-version/;'"
-	    cmd="${cmd} | perl -pne 's/^(Backend check_float_max : )[^\s]*/\$1test-version/;'"
-	    cmd="${cmd} | perl -pne 's/^(Backend checkdenorm : )[^\s]*/\$1test-version/;'"
-	    cmd="${cmd} | perl -pne 's/^(Backend checkcancellation : )[^\s]*/\$1test-version/;'"
-            ;;
-	"-addr-error")
-            cmd="${cmd} | perl -pne 's/   at 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   at 0xFFFFFF: \$1 \$2/;'"
-	    cmd="${cmd} | perl -pne 's/   by 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   by 0xFFFFFF: \$1 \$2/;'"
-            ;;
-	"-copyright")
-            cmd="${cmd} | perl -pne 's/^(Copyright \(C\) )[\S\s]*/\$1XXXXX/;'"
-            ;;
+    "-seed")
+        cmd="${cmd} | perl -pne 's/^(First seed : )\d+/\$1XXX/;'"
+        cmd="${cmd} | perl -pne 's/^(Info \[interflop-verrou\]: seed = )\d+/\$1XXX/;'"
+        ;;
+    "-cnt-cmp-conv")
+        cmd="${cmd} | perl -n"
+        cmd="${cmd} -e 'BEGIN{\$remove=0}'"
+        cmd="${cmd} -e '\$remove=1 if m/^ cmp/;'"
+        cmd="${cmd} -e '\$remove=1 if m/^ conv/;'"
+        cmd="${cmd} -e 'print unless \$remove;'"
+        cmd="${cmd} -e '\$remove=0 if m/^ -----/;'"
+        ;;
+    "-backend-version")
+        cmd="${cmd} | perl -pne 's/^(Backend verrou : )[^\s]*/\$1test-version/;'"
+        cmd="${cmd} | perl -pne 's/^(Backend mcaquad : )[^\s]*/\$1test-version/;'"
+        cmd="${cmd} | perl -pne 's/^(Backend check_float_max : )[^\s]*/\$1test-version/;'"
+        cmd="${cmd} | perl -pne 's/^(Backend checkdenorm : )[^\s]*/\$1test-version/;'"
+        cmd="${cmd} | perl -pne 's/^(Backend checkcancellation : )[^\s]*/\$1test-version/;'"
+        ;;
+    "-addr-error")
+        cmd="${cmd} | perl -pne 's/   at 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   at 0xFFFFFF: \$1 \$2/;'"
+        cmd="${cmd} | perl -pne 's/   by 0x[0123456789ABCDEF]*: ([^\s]*) ([^s]*)/   by 0xFFFFFF: \$1 \$2/;'"
+        ;;
+    "-copyright")
+        cmd="${cmd} | perl -pne 's/^(Copyright \(C\) )[\S\s]*/\$1XXXXX/;'"
+        ;;
     esac
     shift
 done

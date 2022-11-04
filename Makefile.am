@@ -10,6 +10,7 @@ pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
 # verrou-<platform>
 #----------------------------------------------------------------------------
 
+
 PYTHON_REP=pyTools
 
 bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_synchro ${PYTHON_REP}/post_verrou_dd
@@ -33,13 +34,31 @@ VERROU_SOURCES_COMMON = \
 	vr_clreq.c	\
 	vr_clo.c	\
 	vr_include_trace.c \
-	interflop_backends/backend_mcaquad/common/tinymt64.c\
-	interflop_backends/interflop_verrou/interflop_verrou.cxx\
-	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
-	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
-	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx
+	interflop_valgrind_stdlib.c \
+	interflop_backends/interflop_verrou/interflop_valgrind_verrou.c \
+	interflop_backends/interflop_checkfloatmax/interflop_valgrind_checkfloatmax.c \
+	interflop_backends/interflop_checkcancellation/interflop_valgrind_checkcancellation.c \
+	interflop_backends/interflop_checkdenormal/interflop_valgrind_checkdenormal.c
 
+if LINK_INTERFLOP_BACKEND_BITMASK
+VERROU_SOURCES_COMMON += interflop_backends/interflop_bitmask/interflop_valgrind_bitmask.c
+endif
 
+if LINK_INTERFLOP_BACKEND_CANCELLATION
+VERROU_SOURCES_COMMON += interflop_backends/interflop_cancellation/interflop_valgrind_cancellation.c
+endif
+
+if LINK_INTERFLOP_BACKEND_MCAINT
+VERROU_SOURCES_COMMON += interflop_backends/interflop_mcaint/interflop_valgrind_mcaint.c
+endif
+
+if LINK_INTERFLOP_BACKEND_MCAQUAD
+VERROU_SOURCES_COMMON += interflop_backends/interflop_mcaquad/interflop_valgrind_mcaquad.c
+endif
+
+if LINK_INTERFLOP_BACKEND_VPREC
+VERROU_SOURCES_COMMON += interflop_backends/interflop_vprec/interflop_valgrind_vprec.c
+endif
 
 VERROU_FLAG_CXX = $(subst \
 	-Wmissing-prototypes,,$(subst \
@@ -48,24 +67,63 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C =
+VERROU_FLAG_C = -g -Wno-enum-conversion
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
-VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11
+VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11 -g -Wno-enum-conversion
 
 # We use the test of fma normally use to configure check
-if HAVE_FMA_INTRIN
+if HAVE_FMA_INTRINSIC
 VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
 VERROU_FLAG_C   += -march=native -DUSE_VERROU_FMA
 endif
 
-if USE_QUAD
-VERROU_SOURCES_COMMON+= \
-	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
-	interflop_backends/backend_mcaquad/common/fmaqApprox.c
-VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
-VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
+if LINK_INTERFLOP_BACKEND_VERROU
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_VERROU
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_VERROU
+endif
+
+if LINK_INTERFLOP_BACKEND_CHECKFLOATMAX
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_CHECKFLOATMAX
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_CHECKFLOATMAX
+endif
+
+if LINK_INTERFLOP_BACKEND_CHECKCANCELLATION
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_CHECKCANCELLATION
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_CHECKCANCELLATION
+endif
+
+if LINK_INTERFLOP_BACKEND_CHECKDENORMAL
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_CHECKDENORMAL
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_CHECKDENORMAL
+endif
+
+
+if LINK_INTERFLOP_BACKEND_BITMASK
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_BITMASK
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_BITMASK
+endif
+
+if LINK_INTERFLOP_BACKEND_CANCELLATION
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_CANCELLATION
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_CANCELLATION
+endif
+
+if LINK_INTERFLOP_BACKEND_MCAINT
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_MCAINT
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_MCAINT
+endif
+
+
+if LINK_INTERFLOP_BACKEND_MCAQUAD
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_MCAQUAD
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_MCAQUAD
+endif
+
+if LINK_INTERFLOP_BACKEND_VPREC
+VERROU_FLAG_CXX +=  -DLINK_INTERFLOP_BACKEND_VPREC
+VERROU_FLAG_C   +=  -DLINK_INTERFLOP_BACKEND_VPREC
 endif
 
 if USE_PROFILING_EXACT
@@ -84,16 +142,55 @@ VERROU_FLAG_CXX +=  -DVERROU_IGNORE_NANINF_CHECK
 VERROU_FLAG_C   +=  -DVERROU_IGNORE_NANINF_CHECK
 endif
 
-
 VERROU_FLAG_C +=-DVERROU_NUM_AVG=@VERROU_NUM_AVG@
 VERROU_FLAG_CXX +=-DVERROU_NUM_AVG=@VERROU_NUM_AVG@
-
 
 VERROU_FLAG_C +=-DVERROU_DET_HASH=vr_@vg_cv_verrou_det_hash@_hash
 VERROU_FLAG_CXX +=-DVERROU_DET_HASH=vr_@vg_cv_verrou_det_hash@_hash
 
 VERROU_FLAG_C   += -DINTERFLOP_STATIC_INTERFACE_ENABLED
 VERROU_FLAG_CXX += -DINTERFLOP_STATIC_INTERFACE_ENABLED
+
+VERROU_FLAG_C   += -I@INTERFLOP_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_INCLUDEDIR@
+
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_VERROU_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_VERROU_INCLUDEDIR@
+
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_CHECKFLOATMAX_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_CHECKFLOATMAX_INCLUDEDIR@
+
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_CHECKCANCELLATION_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_CHECKCANCELLATION_INCLUDEDIR@
+
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_CHECKDENORMAL_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_CHECKDENORMAL_INCLUDEDIR@
+
+if LINK_INTERFLOP_BACKEND_BITMASK
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_BITMASK_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_BITMASK_INCLUDEDIR@
+endif
+
+if LINK_INTERFLOP_BACKEND_CANCELLATION
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_CANCELLATION_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_CANCELLATION_INCLUDEDIR@
+endif
+
+if LINK_INTERFLOP_BACKEND_MCAINT
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_MCAINT_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_MCAINT_INCLUDEDIR@
+endif
+
+if LINK_INTERFLOP_BACKEND_MCAQUAD
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_MCAQUAD_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_MCAQUAD_INCLUDEDIR@
+endif
+
+if LINK_INTERFLOP_BACKEND_VPREC
+VERROU_FLAG_C   += -I@INTERFLOP_BACKEND_VPREC_INCLUDEDIR@
+VERROU_FLAG_CXX += -I@INTERFLOP_BACKEND_VPREC_INCLUDEDIR@
+endif
+
 
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)
@@ -106,7 +203,41 @@ verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CXXFLAGS     = \
 	$(VERROU_FLAG_CXX)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@)
+
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        = \
+	@INTERFLOP_BACKEND_VERROU_LIBDIR@/libinterflop_verrou_no-tls.a \
+	@INTERFLOP_BACKEND_CHECKFLOATMAX_LIBDIR@/libinterflop_checkfloatmax.a \
+	@INTERFLOP_BACKEND_CHECKCANCELLATION_LIBDIR@/libinterflop_checkcancellation.a \
+	@INTERFLOP_BACKEND_CHECKDENORMAL_LIBDIR@/libinterflop_checkdenormal.a
+
+if LINK_INTERFLOP_BACKEND_BITMASK
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD       += \
+	@INTERFLOP_BACKEND_BITMASK_LIBDIR@/libinterflop_bitmask_no-tls.a
+endif
+if LINK_INTERFLOP_BACKEND_CANCELLATION
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD       += \
+	@INTERFLOP_BACKEND_CANCELLATION_LIBDIR@/libinterflop_cancellation_no-tls.a
+endif
+if LINK_INTERFLOP_BACKEND_MCAINT
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD       += \
+	@INTERFLOP_BACKEND_MCAINT_LIBDIR@/libinterflop_mca_int_no-tls.a
+endif
+if LINK_INTERFLOP_BACKEND_MCAQUAD
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD       += \
+	@INTERFLOP_BACKEND_MCAQUAD_LIBDIR@/libinterflop_mca_no-tls.a
+endif
+if LINK_INTERFLOP_BACKEND_VPREC
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD       += \
+	@INTERFLOP_BACKEND_VPREC_LIBDIR@/libinterflop_vprec.a
+endif
+
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        +=   \
+	@INTERFLOP_LIBDIR@/libinterflop_logger.a    \
+	@INTERFLOP_LIBDIR@/libinterflop_prng.a    \
+	@INTERFLOP_LIBDIR@/libinterflop_rng.a     \
+	@INTERFLOP_LIBDIR@/libinterflop_fma.a     \
+	@INTERFLOP_LIBDIR@/libinterflop_hashmap.a \
+	@INTERFLOP_LIBDIR@/libinterflop_stdlib.a  \
 	$(TOOL_LDADD_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS      = \
 	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
@@ -116,10 +247,6 @@ verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LINK = \
 	$(LINK) \
 	$(verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS) \
 	$(verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS)
-
-
-
-
 
 if VGCONF_HAVE_PLATFORM_SEC
 verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_SOURCES      = \
@@ -137,7 +264,7 @@ verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDADD        = \
 	$(TOOL_LDADD_@VGCONF_PLATFORM_SEC_CAPS@)    \
 	-lm -lc
 verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS      = \
-	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_SEC_CAPS@)
+	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_SEC_CAPS@) -flto -O2
 verrou_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LINK = \
 	$(top_builddir)/coregrind/link_tool_exe_@VGCONF_OS@ \
 	@VALT_LOAD_ADDRESS_SEC@ \

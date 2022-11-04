@@ -2,11 +2,11 @@ Verrou, Check floating-point rounding errors
 Copyright (C) XXXXX 
 
 First seed : 42
-Backend verrou : test-version
-Backend mcaquad : test-version
-Backend checkcancellation : test-version
-Backend check_float_max : test-version
-Backend checkdenorm : test-version
+Info [interflop-verrou]: load backend with:
+Info [interflop-verrou]: rounding-mode = AVERAGE_DET
+Info [interflop-verrou]: seed = 42
+Info [interflop-verrou]: static-backend = false
+Backend interflop-verrou : 1.x-dev
 Instrumented operations :
 	add : yes
 	sub : yes
@@ -28,7 +28,6 @@ Instrumented vectorized operations :
 Instrumented type :
 	flt : yes
 	dbl : yes
-Backend verrou simulating AVERAGE_DET rounding mode
 New seed : 0
 New seed : 1
 New seed : 2

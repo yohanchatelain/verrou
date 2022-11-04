@@ -71,6 +71,11 @@ are put in parentheses as examples):
 
 <p>&nbsp;</p>
 
+Install interflop dependencies:
+
+    ./install-interflop.sh <PREFIX>
+    source <PREFIX>/interflop-env.sh
+
 Configure valgrind:
 
     ./autogen.sh
@@ -81,10 +86,10 @@ compiler:
 
     ./configure --enable-only64bit --prefix=PREFIX CFLAGS="-mfma"
 
-Systems that don't support FMA instructions the `--enable-verrou-fma=no`
+Systems that don't support FMA instructions the `--enable-instrinsic-fma=no`
 configure switch need to be used, but be aware that this causes some tests to fail:
 
-    ./configure --enable-only64bit --enable-verrou-fma=no --prefix=PREFIX
+    ./configure --enable-only64bit --enable-intrinsic-fma=no --prefix=PREFIX
 
 <p>&nbsp;</p>
 
@@ -131,7 +136,7 @@ or only verrou:
 
 These tests are more closely related to the arithmetic part in Verrou:
 
-    make -C verrou/unitTest
+    VFC_BACKENDS_LOGGER=False make -C verrou/unitTest
 
 
 ## Documentation

@@ -1,5 +1,3 @@
-
-
 BIN=stencil
 
 BINO3DOUBLE=$BIN-O3-DOUBLE
@@ -11,11 +9,8 @@ BINS="./$BINO3DOUBLE ./$BINO0DOUBLE ./$BINO3FLOAT ./$BINO0FLOAT"
 
 OPT="--scale=1 5"
 
-
-
-for i in $BINS
-do
+for i in $BINS; do
     echo $i
     $PREFIX $i $OPT
 
-done;
+done

@@ -10,3 +10,4 @@ tests/*.std*.out
 tests/*.std*.diff
 tests/clreq
 tests/sum
+.dirstamp

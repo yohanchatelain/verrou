@@ -30,5 +30,5 @@ naninf_SOURCES = naninf.cxx
 check_PROGRAMS += denorm
 denorm_SOURCES = denorm.cxx
 
-AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3
-AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -lm
+AM_CFLAGS   += $(AM_FLAG_M3264_PRI) -mfma -lm -O0 -g3 -I@INTERFLOP_INCLUDEDIR@
+AM_CXXFLAGS += $(AM_FLAG_M3264_PRI) -mfma -std=c++11 -O0 -g3 -lm -I@INTERFLOP_INCLUDEDIR@

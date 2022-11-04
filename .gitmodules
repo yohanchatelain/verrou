@@ -1,0 +1,3 @@
+[submodule "interflop_backends/interflop_ieee/interflop-backend-ieee"]
+path = interflop_backends/interflop_ieee/interflop-backend-ieee
+url = https://github.com/yohanchatelain/interflop-backend-ieee.git

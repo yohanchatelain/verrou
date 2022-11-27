@@ -201,17 +201,17 @@ Bool vr_process_clo(const HChar *arg) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-mode=ieee", vr.vprec_mode,
                           vprecmode_ieee)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=binary16",
-                          vr.vprec_preset, preset_binary16)) {
+                          vr.vprec_preset, vprec_preset_binary16)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=binary32",
-                          vr.vprec_preset, preset_binary32)) {
+                          vr.vprec_preset, vprec_preset_binary32)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=bfloat16",
-                          vr.vprec_preset, preset_bfloat16)) {
+                          vr.vprec_preset, vprec_preset_bfloat16)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=tensorfloat",
-                          vr.vprec_preset, preset_tensorfloat)) {
+                          vr.vprec_preset, vprec_preset_tensorfloat)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=fp24", vr.vprec_preset,
-                          preset_fp24)) {
+                          vprec_preset_fp24)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-preset=PXR24", vr.vprec_preset,
-                          preset_PXR24)) {
+                          vprec_preset_PXR24)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=rel",
                           vr.vprec_error_mode, vprec_err_mode_rel)) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--vprec-error-mode=abs",

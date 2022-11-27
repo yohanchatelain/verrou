@@ -40,44 +40,44 @@ extern "C" {
 #endif
 #define IFCD_FCTNAME(FCT) interflop_checkdenorm_##FCT
 #define IFCD_DOOP
-   
+
 #include "../interflop.h"
 
-   struct checkdenorm_conf {
-      int flushtozero; //bool
-  };
+struct checkdenorm_conf {
+  int flushtozero; // bool
+};
 
-  typedef struct checkdenorm_conf checkdenorm_conf_t;
+typedef struct checkdenorm_conf checkdenorm_conf_t;
 
+void IFCD_FCTNAME(configure)(checkdenorm_conf_t mode, void *context);
+void IFCD_FCTNAME(finalize)(void *context);
 
-  void IFCD_FCTNAME(configure)(checkdenorm_conf_t mode,void* context);
-  void IFCD_FCTNAME(finalize)(void* context);
+const char *IFCD_FCTNAME(get_backend_name)(void);
+const char *IFCD_FCTNAME(get_backend_version)(void);
 
-  const char* IFCD_FCTNAME(get_backend_name)(void);
-  const char* IFCD_FCTNAME(get_backend_version)(void);
+void checkdenorm_set_denorm_handler(void (*)(void));
 
-  void checkdenorm_set_denorm_handler(void (*)(void));
+extern void (*vr_panicHandler)(const char *);
+void checkdenorm_set_panic_handler(void (*)(const char *));
 
-  extern void (*vr_panicHandler)(const char*);
-  void checkdenorm_set_panic_handler(void (*)(const char*));
+struct interflop_backend_interface_t IFCD_FCTNAME(init)(void **context);
 
-  struct interflop_backend_interface_t IFCD_FCTNAME(init)(void ** context);
-   
-  void IFCD_FCTNAME(add_double) (double a, double b, double* res, void* context);    
-  void IFCD_FCTNAME(add_float)  (float a,  float b,  float*  res, void* context);
-  void IFCD_FCTNAME(sub_double) (double a, double b, double* res, void* context);
-  void IFCD_FCTNAME(sub_float)  (float a,  float b,  float*  res, void* context);
-  void IFCD_FCTNAME(mul_double) (double a, double b, double* res, void* context);
-  void IFCD_FCTNAME(mul_float)  (float a,  float b,  float*  res, void* context);
-  void IFCD_FCTNAME(div_double) (double a, double b, double* res, void* context);
-  void IFCD_FCTNAME(div_float)  (float a,  float b,  float*  res, void* context);
+void IFCD_FCTNAME(add_double)(double a, double b, double *res, void *context);
+void IFCD_FCTNAME(add_float)(float a, float b, float *res, void *context);
+void IFCD_FCTNAME(sub_double)(double a, double b, double *res, void *context);
+void IFCD_FCTNAME(sub_float)(float a, float b, float *res, void *context);
+void IFCD_FCTNAME(mul_double)(double a, double b, double *res, void *context);
+void IFCD_FCTNAME(mul_float)(float a, float b, float *res, void *context);
+void IFCD_FCTNAME(div_double)(double a, double b, double *res, void *context);
+void IFCD_FCTNAME(div_float)(float a, float b, float *res, void *context);
 
-   void IFCD_FCTNAME(cast_double_to_float) (double a, float* b, void* context);
+void IFCD_FCTNAME(cast_double_to_float)(double a, float *b, void *context);
 
-  void IFCD_FCTNAME(madd_double)(double a, double b, double c, double* res, void* context);
-  void IFCD_FCTNAME(madd_float) (float a,  float b,  float c,  float*  res, void* context);
+void IFCD_FCTNAME(madd_double)(double a, double b, double c, double *res,
+                               void *context);
+void IFCD_FCTNAME(madd_float)(float a, float b, float c, float *res,
+                              void *context);
 
-  
 #ifdef __cplusplus
 }
 #endif

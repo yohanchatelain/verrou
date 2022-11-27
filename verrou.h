@@ -44,8 +44,7 @@
    ENTRIES, NOR DELETE ANY -- add new ones at the end.
  */
 
-typedef
-enum {
+typedef enum {
   VR_USERREQ__START_INSTRUMENTATION = VG_USERREQ_TOOL_BASE('V', 'R'),
   VR_USERREQ__STOP_INSTRUMENTATION,
   VR_USERREQ__START_DETERMINISTIC,
@@ -58,46 +57,40 @@ enum {
   VR_USERREQ__SET_SEED,
 } Vg_VerrouClientRequest;
 
-#define VERROU_START_INSTRUMENTATION                                 \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_INSTRUMENTATION, \
-                                  0, 0, 0, 0, 0)
+#define VERROU_START_INSTRUMENTATION                                           \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_INSTRUMENTATION, 0, 0, 0,  \
+                                  0, 0)
 
-#define VERROU_STOP_INSTRUMENTATION                                  \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_INSTRUMENTATION,  \
-                                  0, 0, 0, 0, 0)
+#define VERROU_STOP_INSTRUMENTATION                                            \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_INSTRUMENTATION, 0, 0, 0,   \
+                                  0, 0)
 
-#define VERROU_START_DETERMINISTIC(LEVEL)                            \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_DETERMINISTIC,   \
-                                  LEVEL, 0, 0, 0, 0)
+#define VERROU_START_DETERMINISTIC(LEVEL)                                      \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__START_DETERMINISTIC, LEVEL, 0,   \
+                                  0, 0, 0)
 
-#define VERROU_STOP_DETERMINISTIC(LEVEL)                             \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_DETERMINISTIC,    \
-                                  LEVEL, 0, 0, 0, 0)
-#define VERROU_SET_SEED(SEED)                             \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__SET_SEED,    \
-                                  SEED, 0, 0, 0, 0)
+#define VERROU_STOP_DETERMINISTIC(LEVEL)                                       \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__STOP_DETERMINISTIC, LEVEL, 0, 0, \
+                                  0, 0)
+#define VERROU_SET_SEED(SEED)                                                  \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__SET_SEED, SEED, 0, 0, 0, 0)
 
-#define VERROU_DISPLAY_COUNTERS                                      \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__DISPLAY_COUNTERS,      \
-                                  0, 0, 0, 0, 0)
-#define VERROU_PRINT_PROFILING_EXACT                                      \
-  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRINT_PROFILING_EXACT,	\
-                                  0, 0, 0, 0, 0)
+#define VERROU_DISPLAY_COUNTERS                                                \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__DISPLAY_COUNTERS, 0, 0, 0, 0, 0)
+#define VERROU_PRINT_PROFILING_EXACT                                           \
+  VALGRIND_DO_CLIENT_REQUEST_STMT(VR_USERREQ__PRINT_PROFILING_EXACT, 0, 0, 0,  \
+                                  0, 0)
 
-#define VERROU_DUMP_COVER \
-  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	      \
-					    VR_USERREQ__DUMP_COVER,   \
-					    0, 0, 0, 0, 0)
+#define VERROU_DUMP_COVER                                                      \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(                               \
+      0 /* if not */, VR_USERREQ__DUMP_COVER, 0, 0, 0, 0, 0)
 
-#define VERROU_COUNT_FP_INSTRUMENTED \
-  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
-					    VR_USERREQ__COUNT_FP_INSTRUMENTED,\
-					    0, 0, 0, 0, 0)
+#define VERROU_COUNT_FP_INSTRUMENTED                                           \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(                               \
+      0 /* if not */, VR_USERREQ__COUNT_FP_INSTRUMENTED, 0, 0, 0, 0, 0)
 
-#define VERROU_COUNT_FP_NOT_INSTRUMENTED \
-  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(0 /* if not */,	              \
-					    VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED,\
-					    0, 0, 0, 0, 0)
-
+#define VERROU_COUNT_FP_NOT_INSTRUMENTED                                       \
+  (unsigned int)VALGRIND_DO_CLIENT_REQUEST_EXPR(                               \
+      0 /* if not */, VR_USERREQ__COUNT_FP_NOT_INSTRUMENTED, 0, 0, 0, 0, 0)
 
 #endif /* __VERROU_H */

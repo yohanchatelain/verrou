@@ -31,7 +31,10 @@
 #include "coregrind/pub_core_debuginfo.h"
 #include "coregrind/pub_core_transtab.h"
 #include "float.h"
+#include "interflop_backends/interflop_vprec/interflop_valgrind_vprec.h"
+#include "interflop_valgrind_stdlib.h"
 #include "pub_tool_libcfile.h"
+
 //#pragma STDC FENV_ACCESS ON
 Vr_State vr;
 
@@ -54,9 +57,6 @@ void *backend_checkdenorm_context;
 
 struct interflop_backend_interface_t backend_check_float_max;
 void *backend_check_float_max_context;
-
-struct interflop_backend_interface_t backend_vprec;
-void *backend_vprec_context;
 
 VgFile *vr_outCancellationFile;
 VgFile *vr_outDenormFile;
@@ -1173,17 +1173,7 @@ static void vr_post_clo_init(void) {
   vr_env_clo("VERROU_MCA_PRECISION_DOUBLE", "--mca-precision-double");
   vr_env_clo("VERROU_MCA_PRECISION_FLOAT", "--mca-precision-float");
 
-  vr_env_clo("VERROU_VPREC_PRECISION_BINARY64", "--vprec-precision-binary64");
-  vr_env_clo("VERROU_VPREC_RANGE_BINARY64", "--vprec-range-binary64");
-  vr_env_clo("VERROU_VPREC_PRECISION_BINARY32", "--vprec-precision-binary32");
-  vr_env_clo("VERROU_VPREC_RANGE_BINARY32", "--vprec-range-binary32");
-  vr_env_clo("VERROU_VPREC_MODE", "--vprec-mode");
-  vr_env_clo("VERROU_VPREC_PRESET", "--vprec-preset");
-  vr_env_clo("VERROU_VPREC_ERROR_MODE", "--vprec-error-mode");
-  vr_env_clo("VERROU_VPREC_MAX_ERROR_EXPONENT",
-             "--vprec-max-abs-error-exponent");
-  vr_env_clo("VERROU_VPREC_DAZ", "--vprec-daz");
-  vr_env_clo("VERROU_VPREC_FTZ", "--vprec-ftz");
+  interflop_valgrind_vprec_set_env_cli();
 
   vr_env_clo("VERROU_INSTR", "--vr-instr");
 
@@ -1241,26 +1231,9 @@ static void vr_post_clo_init(void) {
   interflop_mcaquad_configure(mca_quad_conf, backend_mcaquad_context);
   mcaquad_set_seed(vr.firstSeed);
 
-  backend_vprec = interflop_vprec_init(1, NULL, &backend_vprec_context);
-  vprec_set_panic_handler(&VG_(tool_panic));
-
-  VG_(umsg)
-  ("Backend %s : %s\n", interflop_vprec_get_backend_name(),
-   interflop_vprec_get_backend_version());
-
-  vprec_conf_t vprec_conf;
-  vprec_conf.precision_binary32 = vr.vprec_precision_binary32;
-  vprec_conf.range_binary32 = vr.vprec_range_binary32;
-  vprec_conf.precision_binary64 = vr.vprec_precision_binary64;
-  vprec_conf.range_binary64 = vr.vprec_range_binary64;
-  vprec_conf.mode = vr.vprec_mode;
-  vprec_conf.preset = vr.vprec_preset;
-  vprec_conf.err_mode = vr.vprec_error_mode;
-  vprec_conf.max_abs_err_exponent = vr.vprec_max_abs_error_exponent;
-  vprec_conf.daz = vr.vprec_daz;
-  vprec_conf.ftz = vr.vprec_ftz;
-
-  interflop_vprec_configure(vprec_conf, backend_vprec_context);
+  if (vr.backend == vr_vprec) {
+    interflop_valgrind_vprec_init();
+  }
 #endif
 
   /*Init outfile cancellation*/

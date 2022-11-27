@@ -217,7 +217,7 @@ IFV_INLINE void IFV_FCTNAME(madd_float)(float a, float b, float c, float *res,
   Op::apply(Op::PackArgs(a, b, c), res, context);
 }
 
-struct interflop_backend_interface_t IFV_FCTNAME(init)(void **context) {
+struct interflop_backend_interface_t IFV_FCTNAME(init)(void *context) {
   struct interflop_backend_interface_t config =
       interflop_backend_empty_interface;
 

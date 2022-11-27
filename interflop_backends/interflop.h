@@ -1,3 +1,6 @@
+#ifndef __INTERFLOP_H__
+#define __INTERFLOP_H__
+
 #pragma once
 /* interflop backend interface */
 #include <stdarg.h>
@@ -100,7 +103,8 @@ struct interflop_backend_interface_t {
   void (*exit_function)(interflop_function_stack_t *stack, void *context,
                         int nb_args, va_list ap);
 
-  /* interflop_handle_call: called when the backend is one of the destinataries
+  /* interflop_handle_call: called when the backend is one of the
+  destinataries
    * of an interflop_call from user code */
   void (*handle_call)(void *context, interflop_call_id opcode, va_list ap);
   /* interflop_finalize: called at the end of the instrumented program
@@ -125,9 +129,10 @@ struct interflop_backend_interface_t {
  * interflop_init. To make it persistent, a backend must copy it.
  *
  * context: the backend is free to make this point to a backend-specific
- * context. The frontend will pass the context back as the last argument of the
+ * context. The frontend will pass the context back as the last argument of
+ the
  * above instrumentation hooks.
  * */
 
-struct interflop_backend_interface_t interflop_init(int argc, char **argv,
-                                                    void **context);
+struct interflop_backend_interface_t interflop_init(void *context);
+#endif /* __INTERFLOP_H__*/

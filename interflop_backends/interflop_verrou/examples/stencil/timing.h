@@ -28,41 +28,26 @@
    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
+   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <stdint.h>
 
 #include <sys/time.h>
 
-
 #include <sys/time.h>
 static struct timeval beginTV;
 static struct timeval endTV;
 
-static inline void begin(void)
-{
-  gettimeofday(&beginTV,NULL);
-}
+static inline void begin(void) { gettimeofday(&beginTV, NULL); }
 
-static inline void end(void)
-{
-  gettimeofday(&endTV,NULL);
-}
+static inline void end(void) { gettimeofday(&endTV, NULL); }
 
+static inline void reset_and_start_timer() { begin(); }
 
-static inline void reset_and_start_timer()
-{
-  begin();
-}
-
-
-
-static inline double get_elapsed_sec()
-{
+static inline double get_elapsed_sec() {
   end();
-  double etime =  (double) (endTV.tv_sec - beginTV.tv_sec) +
-    1.e-6* (double) (endTV.tv_usec - beginTV.tv_usec);
+  double etime = (double)(endTV.tv_sec - beginTV.tv_sec) +
+                 1.e-6 * (double)(endTV.tv_usec - beginTV.tv_usec);
   return etime;
 }
-

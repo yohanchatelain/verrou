@@ -42,7 +42,6 @@
 #include "prng/xoshiro.cxx"
 #endif
 
-
 typedef struct Vr_Rand_ Vr_Rand;
 struct Vr_Rand_ {
   uint64_t current_;
@@ -52,15 +51,13 @@ struct Vr_Rand_ {
   xoshiro128_state_t rng128_;
   xoshiro256_state_t rng256_;
 #endif
-uint64_t seed_;
+  uint64_t seed_;
 };
 
-//extern Vr_Rand vr_rand;
+// extern Vr_Rand vr_rand;
 
 Vr_Rand vr_rand;
 
 #include "vr_rand_implem.h"
-
-
 
 #endif

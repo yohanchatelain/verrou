@@ -33,12 +33,15 @@ VERROU_SOURCES_COMMON = \
 	vr_clreq.c	\
 	vr_clo.c	\
 	vr_include_trace.c \
+	interflop_valgrind_stdlib.c \
+	interflop_backends/interflop_vprec/interflop_valgrind_vprec.c \
 	interflop_backends/backend_mcaquad/common/tinymt64.c\
 	interflop_backends/interflop_verrou/interflop_verrou.cxx\
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
-	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx\
-	interflop_backends/backend_vprec/interflop_vprec.c
+	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx \
+	/home/yohan/Work/interflop-vprec/interflop_vprec.h \
+	/home/yohan/Work/interflop-vprec/common/interflop_stdlib.h
 
 
 
@@ -49,11 +52,11 @@ VERROU_FLAG_CXX = $(subst \
 	-Wold-style-declaration,,$(subst \
 	-std=gnu99,,$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@))))))
 
-VERROU_FLAG_C = -g
+VERROU_FLAG_C = -g -Wno-enum-conversion
 
 # Disable exceptions and RTTI to avoid problems with `__gxx_personality_v0'
 # Enable c++11 for std::uint64_t
-VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11 -g
+VERROU_FLAG_CXX += -fno-exceptions -fno-rtti -std=c++11 -g -Wno-enum-conversion
 
 # We use the test of fma normally use to configure check
 if HAVE_FMA_INTRIN
@@ -96,6 +99,10 @@ VERROU_FLAG_CXX +=-DVERROU_DET_HASH=vr_@vg_cv_verrou_det_hash@_hash
 VERROU_FLAG_C   += -DINTERFLOP_STATIC_INTERFACE_ENABLED
 VERROU_FLAG_CXX += -DINTERFLOP_STATIC_INTERFACE_ENABLED
 
+VERROU_FLAG_C   += -I/home/yohan/Work/interflop-vprec/common/
+VERROU_FLAG_CXX += -I/home/yohan/Work/interflop-vprec/common/
+
+
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
@@ -108,6 +115,7 @@ verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CXXFLAGS     = \
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        = \
+	/home/yohan/.local/lib/libinterflop_vprec.a \
 	$(TOOL_LDADD_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS      = \
 	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)

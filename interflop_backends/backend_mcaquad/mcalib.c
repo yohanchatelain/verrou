@@ -40,22 +40,20 @@
 // 2017-04-25 Rewrite debug and validate the noise addition operation
 //
 
-//BL #include <math.h>
+// BL #include <math.h>
 #include <stdbool.h>
-//BL #include <stdint.h>
-//BL #include <stdio.h>
-//BL #include <stdlib.h>
-//BL #include <sys/time.h>
-//BL #include <unistd.h>
+// BL #include <stdint.h>
+// BL #include <stdio.h>
+// BL #include <stdlib.h>
+// BL #include <sys/time.h>
+// BL #include <unistd.h>
 
-
-
+#include "./common/fmaqApprox.h"
 #include "./common/mca_const.h"
 #include "./common/quadmath-imp.h"
-#include "./common/fmaqApprox.h"
 #include "./common/tinymt64.h"
 //#include "../vfcwrapper/vfcwrapper.h"
-  //#include "interflop_mcaquad.h"
+//#include "interflop_mcaquad.h"
 #include "libmca-quad.h"
 
 static int MCALIB_OP_TYPE = MCAMODE_IEEE;
@@ -75,9 +73,9 @@ static float _mca_sbin(float a, float b, int qop);
 static double _mca_dbin(double a, double b, int qop);
 
 /******************** MCA CONTROL FUNCTIONS *******************
-* The following functions are used to set virtual precision and
-* MCA mode of operation.
-***************************************************************/
+ * The following functions are used to set virtual precision and
+ * MCA mode of operation.
+ ***************************************************************/
 
 static int _set_mca_mode(int mode) {
   if (mode < 0 || mode > 3)
@@ -94,9 +92,9 @@ static int _set_mca_precision(int precision_double, int precision_float) {
 }
 
 /******************** MCA RANDOM FUNCTIONS ********************
-* The following functions are used to calculate the random
-* perturbations used for MCA
-***************************************************************/
+ * The following functions are used to calculate the random
+ * perturbations used for MCA
+ ***************************************************************/
 
 /* random generator internal state */
 static tinymt64_t random_state;
@@ -108,7 +106,7 @@ static double _mca_rand(void) {
 
 static inline double pow2d(int exp) {
   double res = 0;
-  //BL uint64_t *x = (uint64_t*)malloc(sizeof(uint64_t));
+  // BL uint64_t *x = (uint64_t*)malloc(sizeof(uint64_t));
   uint64_t x[1];
   // specials
   if (exp == 0)
@@ -203,12 +201,12 @@ static inline __float128 qnoise(int exp) {
       uint64_t u_lx = u_rand >> (-exp - QUAD_EXP_MIN - QUAD_HX_PMAN_SIZE);
       SET_FLT128_WORDS64(noise, u_hx, u_lx);
     }
-//BL    int prec = 20;
-//BL    int width = 46;
-    // char buf[128];
-    // int len=quadmath_snprintf (buf, sizeof(buf), "%+-#*.20Qe", width, noise);
-    // if ((size_t) len < sizeof(buf))
-    // printf ("subnormal noise %s\n", buf);
+    // BL    int prec = 20;
+    // BL    int width = 46;
+    //  char buf[128];
+    //  int len=quadmath_snprintf (buf, sizeof(buf), "%+-#*.20Qe", width,
+    //  noise); if ((size_t) len < sizeof(buf)) printf ("subnormal noise %s\n",
+    //  buf);
     return noise;
   }
   // normal case
@@ -225,8 +223,8 @@ static inline __float128 qnoise(int exp) {
   lx = (p_mantissa) << (SIGN_SIZE + DOUBLE_EXP_SIZE +
                         QUAD_HX_PMAN_SIZE); // 60=1(s)+11(exp double)+48(hx)
   SET_FLT128_WORDS64(noise, hx, lx);
-//BL  int prec = 20;
-//BL  int width = 46;
+  // BL  int prec = 20;
+  // BL  int width = 46;
   return noise;
 }
 
@@ -264,13 +262,13 @@ static bool _is_representabled(double *da) {
 
 static void _mca_inexactq(__float128 *qa) {
   if (MCALIB_OP_TYPE == MCAMODE_IEEE) {
-    return ;
+    return;
   }
 
   /* In RR if the number is representable in current virtual precision,
    * do not add any noise */
   if (MCALIB_OP_TYPE == MCAMODE_RR && _is_representableq(qa)) {
-    return ;
+    return;
   }
 
   int32_t e_a = 0;
@@ -282,13 +280,13 @@ static void _mca_inexactq(__float128 *qa) {
 
 static void _mca_inexactd(double *da) {
   if (MCALIB_OP_TYPE == MCAMODE_IEEE) {
-    return ;
+    return;
   }
 
   /* In RR if the number is representable in current virtual precision,
    * do not add any noise */
   if (MCALIB_OP_TYPE == MCAMODE_RR && _is_representabled(da)) {
-    return ;
+    return;
   }
 
   int32_t e_a = 0;
@@ -298,30 +296,30 @@ static void _mca_inexactd(double *da) {
   *da = *da + pow2d(e_n) * d_rand;
 }
 
-//BL static void _mca_seed(void) {
-//BL   const int key_length = 3;
-//BL   uint64_t init_key[key_length];
-//BL   struct timeval t1;
-//BL   gettimeofday(&t1, NULL);
-//BL 
-//BL   /* Hopefully the following seed is good enough for Montercarlo */
-//BL   init_key[0] = t1.tv_sec;
-//BL   init_key[1] = t1.tv_usec;
-//BL   init_key[2] = getpid();
-//BL 
-//BL   tinymt64_init_by_array(&random_state, init_key, key_length);
-//BL }
+// BL static void _mca_seed(void) {
+// BL   const int key_length = 3;
+// BL   uint64_t init_key[key_length];
+// BL   struct timeval t1;
+// BL   gettimeofday(&t1, NULL);
+// BL
+// BL   /* Hopefully the following seed is good enough for Montercarlo */
+// BL   init_key[0] = t1.tv_sec;
+// BL   init_key[1] = t1.tv_usec;
+// BL   init_key[2] = getpid();
+// BL
+// BL   tinymt64_init_by_array(&random_state, init_key, key_length);
+// BL }
 
-static void _mca_set_seed(uint64_t* init_key, int key_length) {
+static void _mca_set_seed(uint64_t *init_key, int key_length) {
   tinymt64_init_by_array(&random_state, init_key, key_length);
 }
 
 /******************** MCA ARITHMETIC FUNCTIONS ********************
-* The following set of functions perform the MCA operation. Operands
-* are first converted to quad  format (GCC), inbound and outbound
-* perturbations are applied using the _mca_inexact function, and the
-* result converted to the original format for return
-*******************************************************************/
+ * The following set of functions perform the MCA operation. Operands
+ * are first converted to quad  format (GCC), inbound and outbound
+ * perturbations are applied using the _mca_inexact function, and the
+ * result converted to the original format for return
+ *******************************************************************/
 
 // perform_bin_op: applies the binary operator (op) to (a) and (b)
 // and stores the result in (res)
@@ -340,9 +338,9 @@ static void _mca_set_seed(uint64_t* init_key, int key_length) {
     res = (a) / (b);                                                           \
     break;                                                                     \
   default:                                                                     \
-     if(mcaquad_panicHandler!=NULL){ /*Modif BL*/                       \
-        mcaquad_panicHandler("invalid operator in mcaquad.\n");         \
-     }\
+    if (mcaquad_panicHandler != NULL) { /*Modif BL*/                           \
+      mcaquad_panicHandler("invalid operator in mcaquad.\n");                  \
+    }                                                                          \
   };
 
 static inline float _mca_sbin(float a, float b, const int dop) {
@@ -384,25 +382,25 @@ static inline double _mca_dbin(double a, double b, const int qop) {
   return NEAREST_DOUBLE(res);
 }
 
-static inline float _mca_dtosbin(double a){
+static inline float _mca_dtosbin(double a) {
 
-   float resf;
-   if (MCALIB_OP_TYPE != MCAMODE_RR) {
-      __float128 qa = (__float128)a;
-      _mca_inexactq(&qa);
-      resf=NEAREST_FLOAT(qa);
-   }else{
-      resf=(float)a;
-   }
+  float resf;
+  if (MCALIB_OP_TYPE != MCAMODE_RR) {
+    __float128 qa = (__float128)a;
+    _mca_inexactq(&qa);
+    resf = NEAREST_FLOAT(qa);
+  } else {
+    resf = (float)a;
+  }
 
-   if (MCALIB_OP_TYPE != MCAMODE_PB) {
-      double resd;
-      resd=(double)resf;
-      _mca_inexactd(&resd);
-      return NEAREST_FLOAT(resd);
-   }else{
-      return resf;
-   }
+  if (MCALIB_OP_TYPE != MCAMODE_PB) {
+    double resd;
+    resd = (double)resf;
+    _mca_inexactd(&resd);
+    return NEAREST_FLOAT(resd);
+  } else {
+    return resf;
+  }
 }
 
 static inline double _mca_dbin_fma(double a, double b, double c) {
@@ -417,7 +415,7 @@ static inline double _mca_dbin_fma(double a, double b, double c) {
     _mca_inexactq(&qc);
   }
 
-  res=fmaqApprox(a,b,c);
+  res = fmaqApprox(a, b, c);
 
   if (MCALIB_OP_TYPE != MCAMODE_PB) {
     _mca_inexactq(&res);
@@ -427,10 +425,10 @@ static inline double _mca_dbin_fma(double a, double b, double c) {
 }
 
 static inline double _mca_sbin_fma(double a, double b, double c) {
-   double da = (double)a;
-   double db = (double)b;
-   double dc = (double)b;
-   double res = 0;
+  double da = (double)a;
+  double db = (double)b;
+  double dc = (double)b;
+  double res = 0;
 
   if (MCALIB_OP_TYPE != MCAMODE_RR) {
     _mca_inexactd(&da);
@@ -438,7 +436,7 @@ static inline double _mca_sbin_fma(double a, double b, double c) {
     _mca_inexactd(&dc);
   }
 
-  res=fmaApprox(a,b,c);
+  res = fmaApprox(a, b, c);
 
   if (MCALIB_OP_TYPE != MCAMODE_PB) {
     _mca_inexactd(&res);
@@ -447,15 +445,14 @@ static inline double _mca_sbin_fma(double a, double b, double c) {
   return ((float)res);
 }
 
-
 /************************* FPHOOKS FUNCTIONS *************************
-* These functions correspond to those inserted into the source code
-* during source to source compilation and are replacement to floating
-* point operators
-**********************************************************************/
+ * These functions correspond to those inserted into the source code
+ * during source to source compilation and are replacement to floating
+ * point operators
+ **********************************************************************/
 
-#define QUADMCAVERROU 
-#ifndef QUADMCAVERROU 
+#define QUADMCAVERROU
+#ifndef QUADMCAVERROU
 static float _floatadd(float a, float b) { return _mca_sbin(a, b, MCA_ADD); }
 
 static float _floatsub(float a, float b) {

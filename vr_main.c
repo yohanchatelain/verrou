@@ -31,6 +31,7 @@
 #include "coregrind/pub_core_debuginfo.h"
 #include "coregrind/pub_core_transtab.h"
 #include "float.h"
+#include "interflop_backends/interflop_verrou/interflop_valgrind_verrou.h"
 #include "interflop_backends/interflop_vprec/interflop_valgrind_vprec.h"
 #include "interflop_valgrind_stdlib.h"
 #include "pub_tool_libcfile.h"
@@ -42,9 +43,6 @@ typedef struct {
   Bool containFloatModOp;
   Bool containFloatCmp;
 } Vr_instr_kind;
-
-struct interflop_backend_interface_t backend_verrou;
-void *backend_verrou_context;
 
 struct interflop_backend_interface_t backend_mcaquad;
 void *backend_mcaquad_context;
@@ -1109,8 +1107,9 @@ static void vr_fini(Int exitcode) {
 #endif
   interflop_checkcancellation_finalize(backend_checkcancellation_context);
   interflop_check_float_max_finalize(backend_check_float_max_context);
-  interflop_vprec_finalize(backend_vprec_context);
-
+  if (vr.backend == vr_vprec) {
+    interflop_vprec_finalize(backend_vprec_context);
+  }
   if (vr.genExcludeBool) {
     vr_dumpExcludeList(vr.gen_exclude, vr.excludeFile);
   }
@@ -1194,26 +1193,15 @@ static void vr_post_clo_init(void) {
   }
   VG_(umsg)("First seed : %llu\n", vr.firstSeed);
 
-  // Verrou Backend Initilisation
-  backend_verrou = interflop_verrou_init(&backend_verrou_context);
-  verrou_set_panic_handler(&VG_(tool_panic));
-
-  verrou_set_nan_handler(&vr_handle_NaN);
-  verrou_set_inf_handler(&vr_handle_Inf);
+  interflop_valgrind_verrou_init();
 
 #ifdef PROFILING_EXACT
   verrou_init_profiling_exact();
 #endif
 
-  verrou_set_debug_print_op(
-      &print_op); // Use only verrou backend is configured to use it
-
   VG_(umsg)
   ("Backend %s : %s\n", interflop_verrou_get_backend_name(),
    interflop_verrou_get_backend_version());
-
-  interflop_verrou_configure(vr.roundingMode, backend_verrou_context);
-  verrou_set_seed(vr.firstSeed);
 
   /*configuration of MCA backend*/
 #ifdef USE_VERROU_QUAD
@@ -1231,10 +1219,10 @@ static void vr_post_clo_init(void) {
   interflop_mcaquad_configure(mca_quad_conf, backend_mcaquad_context);
   mcaquad_set_seed(vr.firstSeed);
 
+#endif
   if (vr.backend == vr_vprec) {
     interflop_valgrind_vprec_init();
   }
-#endif
 
   /*Init outfile cancellation*/
   checkcancellation_conf_t checkcancellation_conf;

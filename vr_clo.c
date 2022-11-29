@@ -83,9 +83,12 @@ void vr_clo_defaults(void) {
   vr.instr_prec[VR_PREC_DBL_TO_FLT] = True;
 
   vr.firstSeed = (ULong)(-1);
+
+#ifdef USE_VERROU_QUAD
   vr.mca_precision_double = 53;
   vr.mca_precision_float = 24;
   vr.mca_mode = MCAMODE_MCA;
+#endif
 
   // Default VPREC options
   vr.vprec_precision_binary64 = 52;
@@ -163,6 +166,7 @@ Bool vr_process_clo(const HChar *arg) {
                           VR_FTZ)) {
   }
 
+#ifdef USE_VERROU_QUAD
   // Option mcaquad
   else if (VG_INT_CLOM(cloPD, arg, "--mca-precision-double",
                        vr.mca_precision_double)) {
@@ -177,6 +181,7 @@ Bool vr_process_clo(const HChar *arg) {
   } else if (VG_XACT_CLOM(cloPD, arg, "--mca-mode=ieee", vr.mca_mode,
                           MCAMODE_IEEE)) {
   }
+#endif
 
   // Option checkdenorm
   else if (VG_BOOL_CLO(arg, "--check-denorm", bool_val)) {

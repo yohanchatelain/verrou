@@ -10,6 +10,7 @@ pkginclude_HEADERS = verrou.h synchroLib/verrouSynchroLib.h
 # verrou-<platform>
 #----------------------------------------------------------------------------
 
+
 PYTHON_REP=pyTools
 
 bin_SCRIPTS = ${PYTHON_REP}/verrou_dd_line ${PYTHON_REP}/verrou_dd_sym ${PYTHON_REP}/genCovBB ${PYTHON_REP}/verrou_plot_stat ${PYTHON_REP}/paraview_script.py ${PYTHON_REP}/verrou_dd_synchro ${PYTHON_REP}/post_verrou_dd
@@ -35,8 +36,7 @@ VERROU_SOURCES_COMMON = \
 	vr_include_trace.c \
 	interflop_valgrind_stdlib.c \
 	interflop_backends/interflop_vprec/interflop_valgrind_vprec.c \
-	interflop_backends/backend_mcaquad/common/tinymt64.c\
-	interflop_backends/interflop_verrou/interflop_verrou.cxx\
+	interflop_backends/interflop_verrou/interflop_valgrind_verrou.c \
 	interflop_backends/backend_checkcancellation/interflop_checkcancellation.cxx\
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
 	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx \
@@ -64,9 +64,9 @@ VERROU_FLAG_CXX += -march=native -mfma -DUSE_VERROU_FMA
 VERROU_FLAG_C   += -march=native -DUSE_VERROU_FMA
 endif
 
+
 if USE_QUAD
 VERROU_SOURCES_COMMON+= \
-	interflop_backends/backend_mcaquad/interflop_mcaquad.c\
 	interflop_backends/backend_mcaquad/common/fmaqApprox.c
 VERROU_FLAG_CXX +=  -DUSE_VERROU_QUAD
 VERROU_FLAG_C   +=  -DUSE_VERROU_QUAD
@@ -103,7 +103,7 @@ VERROU_FLAG_C   += -I/home/yohan/Work/interflop-vprec/common/
 VERROU_FLAG_CXX += -I/home/yohan/Work/interflop-vprec/common/
 
 
-verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \	
 	$(VERROU_SOURCES_COMMON)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
 	$(AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
@@ -116,6 +116,9 @@ verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        = \
 	/home/yohan/.local/lib/libinterflop_vprec.a \
+	/home/yohan/.local/lib/libinterflop_verrou.a \
+	/home/yohan/.local/lib/libinterflop_prng.a \
+	/home/yohan/.local/lib/libinterflop_stdlib.a \
 	$(TOOL_LDADD_@VGCONF_PLATFORM_PRI_CAPS@)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS      = \
 	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)

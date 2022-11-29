@@ -41,7 +41,7 @@ VERROU_SOURCES_COMMON = \
 	interflop_backends/backend_check_float_max/interflop_check_float_max.cxx\
 	interflop_backends/backend_checkdenorm/interflop_checkdenorm.cxx \
 	/home/yohan/Work/interflop-vprec/interflop_vprec.h \
-	/home/yohan/Work/interflop-vprec/common/interflop_stdlib.h
+	interflop-stdlib/interflop_stdlib.h
 
 
 
@@ -103,7 +103,7 @@ VERROU_FLAG_C   += -I/home/yohan/Work/interflop-vprec/common/
 VERROU_FLAG_CXX += -I/home/yohan/Work/interflop-vprec/common/
 
 
-verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \	
+verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(VERROU_SOURCES_COMMON)
 verrou_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
 	$(AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)

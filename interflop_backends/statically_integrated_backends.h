@@ -8,7 +8,7 @@
 //#include "backend_mcaquad/interflop_mcaquad.h"
 #endif
 
-#include "/home/yohan/Work/interflop-stdlib/interflop_stdlib.h"
+#include "../interflop-stdlib/interflop_stdlib.h"
 #include "/home/yohan/Work/interflop-verrou-backend/interflop_verrou.h"
 #include "/home/yohan/Work/interflop-vprec/common/vfc_hashmap.h"
 #include "/home/yohan/Work/interflop-vprec/interflop_vprec.h"

@@ -19,8 +19,10 @@
 #include <unistd.h>
 
 #ifdef CLIENTREQUEST
-#include "valgrind/verrou.h"
+#include "../../include/valgrind.h"
+#include "../verrou.h"
 #else
+#define VERROU_INSTRUMENTATION_IS_ON 1
 #define VERROU_START_INSTRUMENTATION
 #define VERROU_STOP_INSTRUMENTATION
 #endif
@@ -429,7 +431,7 @@ public:
   };                                                                           \
   extern "C" {                                                                 \
   double FCT(double a) {                                                       \
-    if (ROUNDINGMODE == VR_NATIVE) {                                           \
+    if (ROUNDINGMODE == VR_NATIVE || !VERROU_INSTRUMENTATION_IS_ON) {          \
       incCounter1<double, enum##FCT, 1>();                                     \
       return function1NameTab[enum##FCT].apply(a);                             \
     } else {                                                                   \
@@ -448,7 +450,7 @@ public:
   }                                                                            \
                                                                                \
   float FCT##f(float a) {                                                      \
-    if (ROUNDINGMODE == VR_NATIVE) {                                           \
+    if (ROUNDINGMODE == VR_NATIVE || !VERROU_INSTRUMENTATION_IS_ON) {          \
       incCounter1<float, enum##FCT, 1>();                                      \
       return function1NameTab[enum##FCT].apply(a);                             \
     } else {                                                                   \
@@ -481,7 +483,7 @@ public:
   };                                                                           \
   extern "C" {                                                                 \
   double FCT(double a, double b) {                                             \
-    if (ROUNDINGMODE == VR_NATIVE) {                                           \
+    if (ROUNDINGMODE == VR_NATIVE || !VERROU_INSTRUMENTATION_IS_ON) {          \
       incCounter2<double, enum##FCT, 1>();                                     \
       return function2NameTab[enum##FCT].apply(a, b);                          \
     } else {                                                                   \
@@ -500,7 +502,7 @@ public:
   }                                                                            \
                                                                                \
   float FCT##f(float a, float b) {                                             \
-    if (ROUNDINGMODE == VR_NATIVE) {                                           \
+    if (ROUNDINGMODE == VR_NATIVE || !VERROU_INSTRUMENTATION_IS_ON) {          \
       incCounter2<float, enum##FCT, 1>();                                      \
       return function2NameTab[enum##FCT].apply(a, b);                          \
     } else {                                                                   \
